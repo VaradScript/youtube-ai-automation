@@ -45,11 +45,19 @@ All processes are orchestrated using **n8n**, hosted locally via Docker.
 ---
 
 ## 🐳 How to Run n8n with Docker
+Make sure you have [Docker](https://docs.docker.com/get-docker/) installed.
+
 
 Run n8n locally on port `5678` and mount persistent storage:
 
 ```bash
 docker run -it --rm -p 5678:5678 -v C:\Users\gamin\.n8n:/home/node/.n8n n8nio/n8n       ** add your path
+```
+
+Then run the following in your project root:
+
+```bash
+docker-compose up --build
 ```
 
 🧪 Running Flask Services
