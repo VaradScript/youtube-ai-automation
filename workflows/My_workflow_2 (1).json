@@ -1,0 +1,748 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        800
+      ],
+      "id": "50da17d7-32b2-4dfb-bc84-aee821d02695",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "tPXYti0GBNnb6xa9",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "videos",
+        "options": {
+          "destinationFieldName": "videos"
+        }
+      },
+      "id": "c5f951ff-6677-42fc-b2e4-d760411e5e64",
+      "name": "Split Videos",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        1060,
+        520
+      ],
+      "typeVersion": 3.1
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.videos.video_files[0].link }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "b9dec1f1-df6b-4437-a417-39a557640cd3",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1280,
+        520
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "content": "## Local Setup for Script, Speech, and Caption\n",
+        "height": 760,
+        "width": 800,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        800
+      ],
+      "typeVersion": 1,
+      "id": "95ecdbf8-f4f9-4669-8779-26ab3e502be9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## API setup for AI Images, AI Videos, and Videos",
+        "height": 860,
+        "width": 1760,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -100
+      ],
+      "typeVersion": 1,
+      "id": "72103919-5bc4-49bf-9d27-d85c5099124d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "formTitle": "Prompt",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Enter your prompt here",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -900,
+        580
+      ],
+      "id": "ab351c2e-0da6-45d4-9370-056b35693c96",
+      "name": "Write video idea",
+      "webhookId": "0341d4ce-4b42-4389-9401-cf705ca0b0ed"
+    },
+    {
+      "parameters": {
+        "command": "=mkdir {{ $execution.id }}"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        580
+      ],
+      "id": "608d3896-caba-4b10-83ed-f40269a85e3f",
+      "name": "Create Folder"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a short, exciting script (~50-70 words) for a instagram reel. Keep only script no extra words. So that I can directly make audio out of it. Here is the topic: {{ $json['Enter your prompt here'] }}. ",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a instagram reel script writer."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -440,
+        580
+      ],
+      "id": "56b4c6e3-06ed-40d1-b3ba-0e1e69185b67",
+      "name": "Write Script"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Understand the below script and give me short prompt for generating image only. Donot use special characters only use space: {{ $json.text }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        380,
+        60
+      ],
+      "id": "22eac118-b9b3-4565-bb2b-3ebfc592fb36",
+      "name": "Write image/video prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "=AIzaSyCbDNGaAtoE_XZv3rGu-INoCeQvnzuoXBY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"create image from below data: {{ $json.text }}\"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"responseModalities\": [\n      \"TEXT\",\n      \"IMAGE\"\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        60
+      ],
+      "id": "94e342ff-4ba6-4083-8088-1ad2bef81900",
+      "name": "Create AI Image"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "candidates[0].content.parts[0].inlineData.data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        60
+      ],
+      "id": "67df7947-c4cc-4f1e-9f93-86eba6421a94",
+      "name": "Get AI Image"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{ $execution.id }}/image{{ $execution.id }}.png",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        60
+      ],
+      "id": "5ed4fc73-979b-48ad-a0dc-9e5c79ffca23",
+      "name": "Save AI Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hysts-zeroscope-v2.hf.space/gradio_api/call/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": [\n    \"{{ $json.text }}\",\n    0,\n    24,\n    10\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        300
+      ],
+      "id": "4884af4c-1891-48e3-a449-5c574a8c7332",
+      "name": "Creat AI Video"
+    },
+    {
+      "parameters": {
+        "url": "=https://hysts-zeroscope-v2.hf.space/gradio_api/call/run/{{ $json.event_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1060,
+        300
+      ],
+      "id": "ee39e559-7ad4-4aa2-8915-a35dc8ec4772",
+      "name": "Get AI Video"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputString = $input.first().json.data\n\n// Step 1: Extract the JSON part after \"data: \"\nconst jsonPart = inputString.split('data: ')[1].trim();\n\n// Step 2: Parse it\nconst parsedData = JSON.parse(jsonPart);\n\n// Step 3: Get the path\nconst path = parsedData[0].video.path;\n\nreturn {path};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        300
+      ],
+      "id": "49153c59-a417-4c98-aa88-c63117c99834",
+      "name": "Get URL"
+    },
+    {
+      "parameters": {
+        "url": "=https://hysts-zeroscope-v2.hf.space/gradio_api/file={{ $json.path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "ce6c2480-0d40-4cb1-b97d-d8d1772b268c",
+      "name": "Download AI Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1540,
+        300
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{ $execution.id }}/aiVideo{{ $execution.id }}.mp4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        300
+      ],
+      "id": "a10f7a25-152f-4ee2-a9ac-c7a5ef055fbf",
+      "name": "Save AI Video"
+    },
+    {
+      "parameters": {
+        "url": "https://api.pexels.com/videos/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "per_page",
+              "value": "3"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "DLeEuwTJ2SL2wxRiQY6J8dEKPteO0cvzeq3GfUlcDQTJMqtPikVt8woa"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "620ef0bf-5144-4909-aaa2-4722fb2bcfe6",
+      "name": "Search Videos on Pexel",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        520
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{ $execution.id }}/video{{ $json.videos.id }}.mp4",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        520
+      ],
+      "id": "acbcc575-b4dd-4f04-bdbd-74b4ab3af06a",
+      "name": "Save Video"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        940
+      ],
+      "id": "baf42f4f-4339-40ab-9aa6-8807b7de31a7",
+      "name": "Create Script"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{$execution.id}}/script.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        740,
+        940
+      ],
+      "id": "2238ee0a-b217-495a-9a70-f1a78b3ab0d9",
+      "name": "Save Script"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5001/tts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "filename",
+              "value": "=audio{{ $execution.id }}.wav"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        1160
+      ],
+      "id": "53aabc06-30cd-4066-8279-d055e8004215",
+      "name": "Create speech"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{ $execution.id }}/speech{{ $execution.id }}.wav",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        740,
+        1160
+      ],
+      "id": "edb60045-5137-4ba2-960d-66da84b83819",
+      "name": "Save speech"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/generate-srt",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "filename",
+              "value": "=srt{{ $execution.id }}"
+            },
+            {
+              "name": "script",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        1380
+      ],
+      "id": "d9af55ec-4a79-44f9-89a5-47f1b78b01dc",
+      "name": "Create Caption"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=./{{ $execution.id }}/script.srt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        740,
+        1380
+      ],
+      "id": "93fd2568-72fa-43f3-9752-9c67039db0fd",
+      "name": "Save Caption"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-3.5-turbo",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        480,
+        280
+      ],
+      "id": "e5a7a19d-a974-4352-a49f-66ac5ce8fc06",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "tPXYti0GBNnb6xa9",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1072.9961866775616,
+        280
+      ],
+      "id": "1e26dd8c-961d-4908-9862-dc281cece1f7",
+      "name": "Execute Command"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Script",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Videos": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Save Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write video idea": {
+      "main": [
+        [
+          {
+            "node": "Create Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Write Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Script": {
+      "main": [
+        [
+          {
+            "node": "Create Script",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create speech",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Caption",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Write image/video prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write image/video prompt": {
+      "main": [
+        [
+          {
+            "node": "Create AI Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Creat AI Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Videos on Pexel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI Image": {
+      "main": [
+        [
+          {
+            "node": "Get AI Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get AI Image": {
+      "main": [
+        [
+          {
+            "node": "Save AI Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creat AI Video": {
+      "main": [
+        [
+          {
+            "node": "Get AI Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get AI Video": {
+      "main": [
+        [
+          {
+            "node": "Get URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get URL": {
+      "main": [
+        [
+          {
+            "node": "Download AI Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download AI Video": {
+      "main": [
+        [
+          {
+            "node": "Save AI Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Videos on Pexel": {
+      "main": [
+        [
+          {
+            "node": "Split Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Script": {
+      "main": [
+        [
+          {
+            "node": "Save Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create speech": {
+      "main": [
+        [
+          {
+            "node": "Save speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Caption": {
+      "main": [
+        [
+          {
+            "node": "Save Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write image/video prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "42b5d87a-f02d-471d-80ce-b3aa6f49b7a7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "de54a3e044140fba705155dd5a27bd3408743e88d4ab0e9a5cb1e062f648e070"
+  },
+  "id": "W4cj2jaWceSAKmxN",
+  "tags": []
+}
