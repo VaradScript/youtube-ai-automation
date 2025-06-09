@@ -1,0 +1,11 @@
+# Ignore Python cache & virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+
+# Ignore n8n user config
+n8n_data/
