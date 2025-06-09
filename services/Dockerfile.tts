@@ -1,0 +1,5 @@
+FROM python:3.10-slim
+WORKDIR /app
+COPY text-to-speech.py .
+RUN pip install Flask gTTS
+CMD ["python", "text-to-speech.py"]
