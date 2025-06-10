@@ -26,5 +26,5 @@ services:
       dockerfile: Dockerfile.srt
     container_name: srt_service
     ports:
-      - "8000:8000"
+      - "8000:8000"     ***user ur own port***
     restart: unless-stopped
