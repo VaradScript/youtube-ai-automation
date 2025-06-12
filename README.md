@@ -74,7 +74,7 @@ python text-to-speech.py
 
 ```
 
-## ⚙️ APIs Used
+### ⚙️ APIs Used
 Tool	Purpose	Endpoint
 - 🧠 OpenRouter / Gemini	Script & Image Prompt	OpenRouter Chat Model
 - 🎨 Gemini Flash	Image Generation	v1beta/models/gemini-2.0-flash-exp-image-generation
