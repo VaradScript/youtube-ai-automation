@@ -80,4 +80,4 @@ Tool	Purpose	Endpoint
 - 🎨 Gemini Flash	Image Generation	v1beta/models/gemini-2.0-flash-exp-image-generation
 - 🎥 HuggingFace ZeroScope	Video Creation	https://hysts-zeroscope-v2.hf.space/gradio_api/call/run
 - 📦 Pexels API	Stock Videos	https://api.pexels.com/videos/search
-*-*
+*--*
